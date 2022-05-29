@@ -31,12 +31,8 @@ namespace FileManager
         {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Form1));
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.listBox2 = new System.Windows.Forms.ListBox();
             this.button1 = new System.Windows.Forms.Button();
             this.textBox1 = new System.Windows.Forms.TextBox();
-            this.textBox2 = new System.Windows.Forms.TextBox();
-            this.button2 = new System.Windows.Forms.Button();
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.copy = new System.Windows.Forms.ToolStripMenuItem();
             this.move = new System.Windows.Forms.ToolStripMenuItem();
@@ -49,29 +45,15 @@ namespace FileManager
             this.fontMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.listBox1 = new System.Windows.Forms.ListView();
+            this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader2 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.contextMenuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // listBox1
-            // 
-            this.listBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 31;
-            this.listBox1.Location = new System.Drawing.Point(12, 96);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(723, 562);
-            this.listBox1.TabIndex = 0;
-            // 
-            // listBox2
-            // 
-            this.listBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.listBox2.FormattingEnabled = true;
-            this.listBox2.ItemHeight = 31;
-            this.listBox2.Location = new System.Drawing.Point(755, 96);
-            this.listBox2.Name = "listBox2";
-            this.listBox2.Size = new System.Drawing.Size(723, 562);
-            this.listBox2.TabIndex = 1;
             // 
             // button1
             // 
@@ -80,7 +62,7 @@ namespace FileManager
             this.button1.Name = "button1";
             this.button1.Size = new System.Drawing.Size(129, 46);
             this.button1.TabIndex = 2;
-            this.button1.Text = "Назад";
+            this.button1.Text = "Поиск";
             this.button1.UseVisualStyleBackColor = true;
             this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
@@ -89,27 +71,8 @@ namespace FileManager
             this.textBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
             this.textBox1.Location = new System.Drawing.Point(147, 49);
             this.textBox1.Name = "textBox1";
-            this.textBox1.Size = new System.Drawing.Size(585, 38);
+            this.textBox1.Size = new System.Drawing.Size(1320, 38);
             this.textBox1.TabIndex = 3;
-            // 
-            // textBox2
-            // 
-            this.textBox2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.textBox2.Location = new System.Drawing.Point(890, 49);
-            this.textBox2.Name = "textBox2";
-            this.textBox2.Size = new System.Drawing.Size(585, 38);
-            this.textBox2.TabIndex = 5;
-            // 
-            // button2
-            // 
-            this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.button2.Location = new System.Drawing.Point(755, 44);
-            this.button2.Name = "button2";
-            this.button2.Size = new System.Drawing.Size(129, 46);
-            this.button2.TabIndex = 4;
-            this.button2.Text = "Назад";
-            this.button2.UseVisualStyleBackColor = true;
-            this.button2.Click += new System.EventHandler(this.button2_Click);
             // 
             // contextMenuStrip1
             // 
@@ -129,28 +92,24 @@ namespace FileManager
             this.copy.Name = "copy";
             this.copy.Size = new System.Drawing.Size(190, 24);
             this.copy.Text = "Копировать";
-            this.copy.Click += new System.EventHandler(this.copy_Click);
             // 
             // move
             // 
             this.move.Name = "move";
             this.move.Size = new System.Drawing.Size(190, 24);
             this.move.Text = "Переместить";
-            this.move.Click += new System.EventHandler(this.move_Click);
             // 
             // delete
             // 
             this.delete.Name = "delete";
             this.delete.Size = new System.Drawing.Size(190, 24);
             this.delete.Text = "Удалить";
-            this.delete.Click += new System.EventHandler(this.delete_Click);
             // 
             // archive
             // 
             this.archive.Name = "archive";
             this.archive.Size = new System.Drawing.Size(190, 24);
             this.archive.Text = "Архивировать";
-            this.archive.Click += new System.EventHandler(this.archive_Click);
             // 
             // search
             // 
@@ -163,7 +122,6 @@ namespace FileManager
             this.rename.Name = "rename";
             this.rename.Size = new System.Drawing.Size(190, 24);
             this.rename.Text = "Переименовать";
-            this.rename.Click += new System.EventHandler(this.rename_Click);
             // 
             // toolStrip1
             // 
@@ -172,7 +130,7 @@ namespace FileManager
             this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1489, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1479, 27);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -192,36 +150,74 @@ namespace FileManager
             // fontMenuItem
             // 
             this.fontMenuItem.Name = "fontMenuItem";
-            this.fontMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.fontMenuItem.Size = new System.Drawing.Size(184, 26);
             this.fontMenuItem.Text = "Шрифт";
             this.fontMenuItem.Click += new System.EventHandler(this.fontMenuItem_Click);
             // 
             // backgroundMenuItem
             // 
             this.backgroundMenuItem.Name = "backgroundMenuItem";
-            this.backgroundMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.backgroundMenuItem.Size = new System.Drawing.Size(184, 26);
             this.backgroundMenuItem.Text = "Фон панелей";
             this.backgroundMenuItem.Click += new System.EventHandler(this.backgroundMenuItem_Click);
             // 
             // pictureMenuItem
             // 
             this.pictureMenuItem.Name = "pictureMenuItem";
-            this.pictureMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.pictureMenuItem.Size = new System.Drawing.Size(184, 26);
             this.pictureMenuItem.Text = "Картинка";
             this.pictureMenuItem.Click += new System.EventHandler(this.pictureMenuItem_Click);
+            // 
+            // listBox1
+            // 
+            this.listBox1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.columnHeader1,
+            this.columnHeader2,
+            this.columnHeader3,
+            this.columnHeader4,
+            this.columnHeader5});
+            this.listBox1.HideSelection = false;
+            this.listBox1.Location = new System.Drawing.Point(12, 96);
+            this.listBox1.Name = "listBox1";
+            this.listBox1.Size = new System.Drawing.Size(1455, 567);
+            this.listBox1.TabIndex = 7;
+            this.listBox1.UseCompatibleStateImageBehavior = false;
+            this.listBox1.View = System.Windows.Forms.View.Details;
+            // 
+            // columnHeader1
+            // 
+            this.columnHeader1.Text = "Название";
+            this.columnHeader1.Width = 700;
+            // 
+            // columnHeader2
+            // 
+            this.columnHeader2.Text = "Автор";
+            this.columnHeader2.Width = 200;
+            // 
+            // columnHeader3
+            // 
+            this.columnHeader3.Text = "Оценка";
+            this.columnHeader3.Width = 100;
+            // 
+            // columnHeader4
+            // 
+            this.columnHeader4.Text = "Дата выхода";
+            this.columnHeader4.Width = 150;
+            // 
+            // columnHeader5
+            // 
+            this.columnHeader5.Text = "Цена";
+            this.columnHeader5.Width = 150;
             // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1489, 680);
+            this.ClientSize = new System.Drawing.Size(1479, 675);
+            this.Controls.Add(this.listBox1);
             this.Controls.Add(this.toolStrip1);
-            this.Controls.Add(this.textBox2);
-            this.Controls.Add(this.button2);
             this.Controls.Add(this.textBox1);
             this.Controls.Add(this.button1);
-            this.Controls.Add(this.listBox2);
-            this.Controls.Add(this.listBox1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.contextMenuStrip1.ResumeLayout(false);
@@ -233,13 +229,8 @@ namespace FileManager
         }
 
         #endregion
-
-        private System.Windows.Forms.ListBox listBox1;
-        private System.Windows.Forms.ListBox listBox2;
         private System.Windows.Forms.Button button1;
         private System.Windows.Forms.TextBox textBox1;
-        private System.Windows.Forms.TextBox textBox2;
-        private System.Windows.Forms.Button button2;
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.ToolStripMenuItem copy;
         private System.Windows.Forms.ToolStripMenuItem move;
@@ -252,6 +243,12 @@ namespace FileManager
         private System.Windows.Forms.ToolStripMenuItem fontMenuItem;
         private System.Windows.Forms.ToolStripMenuItem backgroundMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pictureMenuItem;
+        private System.Windows.Forms.ListView listBox1;
+        private System.Windows.Forms.ColumnHeader columnHeader1;
+        private System.Windows.Forms.ColumnHeader columnHeader2;
+        private System.Windows.Forms.ColumnHeader columnHeader3;
+        private System.Windows.Forms.ColumnHeader columnHeader4;
+        private System.Windows.Forms.ColumnHeader columnHeader5;
     }
 }
 
