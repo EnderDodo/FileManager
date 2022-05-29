@@ -10,14 +10,26 @@ using System.Windows.Forms;
 using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace FileManager
 {
     public partial class Form1 : Form
     {
-        public Form1()
+        readonly User user;
+
+        public Form1(User user)
         {
+            this.user = user;
             InitializeComponent();
+
+            InitEvents();
+
+            InitUserPrefs(user.UserData);
+        }
+
+        private void InitEvents()
+        {
             Load += Form1_Load;
             listBox1.DoubleClick += ListBox1_DoubleClick;
             listBox2.DoubleClick += ListBox2_DoubleClick;
@@ -26,6 +38,102 @@ namespace FileManager
             textBox1.GotFocus += TextBox1_GotFocus;
             textBox1.LostFocus += TextBox1_LostFocus;
             textBox1.KeyDown += TextBox1_KeyDown;
+
+            this.FormClosed += Form1_FormClosed;
+        }
+
+        private void InitUserPrefs(UserPrefs userPrefs)
+        {
+            SetFont(userPrefs.MyFont, userPrefs.FontColor);
+            SetImage(userPrefs.BackgroundImage);
+            SetListBoxColor(userPrefs.BackColor);
+        }
+
+        private void fontMenuItem_Click(object sender, EventArgs e)
+        {
+            FontDialog fontDialog = new FontDialog();
+            fontDialog.Font = button1.Font;
+            fontDialog.Color = button1.ForeColor;
+            fontDialog.MaxSize = 36;
+            fontDialog.ShowColor = true;
+
+            if (fontDialog.ShowDialog() == DialogResult.OK)
+            {
+                SetFont(fontDialog.Font, fontDialog.Color);
+            }
+        }
+
+        private void SetFont(Font font, Color fontColor)
+        {
+            button1.Font = font;
+            button2.Font = font;
+
+            listBox1.Font = font;
+            listBox2.Font = font;
+
+            textBox1.Font = font;
+            textBox2.Font = font;
+
+            textBox1.ForeColor = fontColor;
+            textBox2.ForeColor = fontColor;
+
+            listBox1.ForeColor = fontColor;
+            listBox2.ForeColor = fontColor;
+
+            button1.ForeColor = fontColor;
+            button2.ForeColor = fontColor;
+        }
+
+        private void backgroundMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+                SetListBoxColor(colorDialog.Color);
+        }
+
+        private void SetListBoxColor(Color color)
+        {
+            listBox1.BackColor = color;
+            listBox2.BackColor = color;
+
+            textBox1.BackColor = color;
+            textBox2.BackColor = color;
+
+            button1.BackColor = color;
+            button2.BackColor = color;
+        }
+
+        private void pictureMenuItem_Click(object sender, EventArgs e)
+        {
+            using (OpenFileDialog openFileDialog = new OpenFileDialog())
+            {
+                openFileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyPictures);
+                openFileDialog.Filter = "Image Files | *.jpg; *.jpeg; *.png";
+
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    string imagePath = openFileDialog.FileName;
+                    Image image = Image.FromFile(imagePath);
+
+                    SetImage(image);
+                }
+            }
+        }
+
+        private void SetImage(Image image)
+        {
+            this.BackgroundImageLayout = ImageLayout.Stretch;
+            this.BackgroundImage = image;
+        }
+
+        private void Form1_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            UserPrefs newUserPrefs = new UserPrefs(listBox1.Font, listBox1.ForeColor, listBox1.BackColor, this.BackgroundImage);
+            user.UserData = newUserPrefs;
+
+            AuthForm.SerializeData(user);
+
+            Application.Exit();
         }
 
         string currPath1 = string.Empty;
