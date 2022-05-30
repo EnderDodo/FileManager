@@ -49,6 +49,7 @@ namespace FileManager
             this.fontMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.backgroundMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.downloadMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.contextMenuStrip1.SuspendLayout();
             this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
@@ -157,6 +158,7 @@ namespace FileManager
             this.search.Name = "search";
             this.search.Size = new System.Drawing.Size(190, 24);
             this.search.Text = "Найти...";
+            this.search.Click += new System.EventHandler(this.search_Click);
             // 
             // rename
             // 
@@ -172,7 +174,7 @@ namespace FileManager
             this.toolStripDropDownButton1});
             this.toolStrip1.Location = new System.Drawing.Point(0, 0);
             this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(1489, 27);
+            this.toolStrip1.Size = new System.Drawing.Size(1489, 31);
             this.toolStrip1.TabIndex = 6;
             this.toolStrip1.Text = "toolStrip1";
             // 
@@ -182,11 +184,12 @@ namespace FileManager
             this.toolStripDropDownButton1.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.fontMenuItem,
             this.backgroundMenuItem,
-            this.pictureMenuItem});
+            this.pictureMenuItem,
+            this.downloadMenuItem});
             this.toolStripDropDownButton1.Image = ((System.Drawing.Image)(resources.GetObject("toolStripDropDownButton1.Image")));
             this.toolStripDropDownButton1.ImageTransparentColor = System.Drawing.Color.Magenta;
             this.toolStripDropDownButton1.Name = "toolStripDropDownButton1";
-            this.toolStripDropDownButton1.Size = new System.Drawing.Size(98, 24);
+            this.toolStripDropDownButton1.Size = new System.Drawing.Size(98, 28);
             this.toolStripDropDownButton1.Text = "Настройки";
             // 
             // fontMenuItem
@@ -209,6 +212,13 @@ namespace FileManager
             this.pictureMenuItem.Size = new System.Drawing.Size(224, 26);
             this.pictureMenuItem.Text = "Картинка";
             this.pictureMenuItem.Click += new System.EventHandler(this.pictureMenuItem_Click);
+            // 
+            // downloadMenuItem
+            // 
+            this.downloadMenuItem.Name = "downloadMenuItem";
+            this.downloadMenuItem.Size = new System.Drawing.Size(224, 26);
+            this.downloadMenuItem.Text = "Скачать файл";
+            this.downloadMenuItem.Click += new System.EventHandler(this.downloadMenuItem_Click);
             // 
             // Form1
             // 
@@ -252,6 +262,7 @@ namespace FileManager
         private System.Windows.Forms.ToolStripMenuItem fontMenuItem;
         private System.Windows.Forms.ToolStripMenuItem backgroundMenuItem;
         private System.Windows.Forms.ToolStripMenuItem pictureMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem downloadMenuItem;
     }
 }
 

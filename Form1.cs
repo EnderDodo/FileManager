@@ -11,6 +11,9 @@ using System.IO;
 using System.Diagnostics;
 using System.IO.Compression;
 using System.Runtime.Serialization.Formatters.Binary;
+using System.Threading;
+using System.Text.RegularExpressions;
+using System.Net;
 
 namespace FileManager
 {
@@ -28,6 +31,17 @@ namespace FileManager
             InitUserPrefs(user.UserData);
         }
 
+        #region Init
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            DriveInfo[] allDrives = DriveInfo.GetDrives();
+            foreach (DriveInfo item in allDrives)
+            {
+                listBox1.Items.Add(item.Name);
+                listBox2.Items.Add(item.Name);
+            }
+
+        }
         private void InitEvents()
         {
             Load += Form1_Load;
@@ -47,20 +61,6 @@ namespace FileManager
             SetFont(userPrefs.MyFont, userPrefs.FontColor);
             SetImage(userPrefs.BackgroundImage);
             SetListBoxColor(userPrefs.BackColor);
-        }
-
-        private void fontMenuItem_Click(object sender, EventArgs e)
-        {
-            FontDialog fontDialog = new FontDialog();
-            fontDialog.Font = button1.Font;
-            fontDialog.Color = button1.ForeColor;
-            fontDialog.MaxSize = 36;
-            fontDialog.ShowColor = true;
-
-            if (fontDialog.ShowDialog() == DialogResult.OK)
-            {
-                SetFont(fontDialog.Font, fontDialog.Color);
-            }
         }
 
         private void SetFont(Font font, Color fontColor)
@@ -84,13 +84,6 @@ namespace FileManager
             button2.ForeColor = fontColor;
         }
 
-        private void backgroundMenuItem_Click(object sender, EventArgs e)
-        {
-            ColorDialog colorDialog = new ColorDialog();
-            if (colorDialog.ShowDialog() == DialogResult.OK)
-                SetListBoxColor(colorDialog.Color);
-        }
-
         private void SetListBoxColor(Color color)
         {
             listBox1.BackColor = color;
@@ -101,6 +94,29 @@ namespace FileManager
 
             button1.BackColor = color;
             button2.BackColor = color;
+        }
+
+        #endregion
+
+        #region Settings
+        private void backgroundMenuItem_Click(object sender, EventArgs e)
+        {
+            ColorDialog colorDialog = new ColorDialog();
+            if (colorDialog.ShowDialog() == DialogResult.OK)
+                SetListBoxColor(colorDialog.Color);
+        }
+        private void fontMenuItem_Click(object sender, EventArgs e)
+        {
+            FontDialog fontDialog = new FontDialog();
+            fontDialog.Font = button1.Font;
+            fontDialog.Color = button1.ForeColor;
+            fontDialog.MaxSize = 36;
+            fontDialog.ShowColor = true;
+
+            if (fontDialog.ShowDialog() == DialogResult.OK)
+            {
+                SetFont(fontDialog.Font, fontDialog.Color);
+            }
         }
 
         private void pictureMenuItem_Click(object sender, EventArgs e)
@@ -125,6 +141,7 @@ namespace FileManager
             this.BackgroundImageLayout = ImageLayout.Stretch;
             this.BackgroundImage = image;
         }
+        #endregion
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
@@ -217,16 +234,7 @@ namespace FileManager
             }
         }
 
-        private void Form1_Load(object sender, EventArgs e)
-        {
-            DriveInfo[] allDrives = DriveInfo.GetDrives();
-            foreach (DriveInfo item in allDrives)
-            {
-                listBox1.Items.Add(item.Name);
-                listBox2.Items.Add(item.Name);
-            }
 
-        }
 
         private void button1_Click(object sender, EventArgs e)
         {
@@ -421,7 +429,8 @@ namespace FileManager
         bool isRenaming;
         private void TextBox1_GotFocus(object sender, EventArgs e)
         {
-            textBox1.Text = string.Empty;
+            if (isSearching || isRenaming || isDonwloading)
+                textBox1.Text = string.Empty;
         }
 
         private void TextBox1_KeyDown(object sender, KeyEventArgs e)
@@ -432,6 +441,17 @@ namespace FileManager
                 {
                     Rename();
                 }
+                if (isSearching)
+                {
+                    Search();
+                }
+                if (isDonwloading)
+                    Download();
+            }
+
+            if (e.KeyCode == Keys.Escape && isDonwloading)
+            {
+                tokenSource.Cancel();
             }
         }
 
@@ -473,6 +493,210 @@ namespace FileManager
         private void TextBox1_LostFocus(object sender, EventArgs e)
         {
             textBox1.Text = currPath1;
+        }
+
+        bool isSearching = false;
+        private void search_Click(object sender, EventArgs e)
+        {
+            isSearching = true;
+            textBox1.Focus();
+        }
+
+        private void Search()
+        {
+            string dir = Cleanse(listBox1.SelectedItem.ToString());
+            string path = Path.Combine(currPath1, dir);
+            listBox1.Items.Clear();
+
+            string pattern = textBox1.Text;
+
+            SearchByPatternAsync(pattern, path);
+        }
+
+        public async void SearchByPatternAsync(string pattern, string searchPath)
+        {
+            await Task.Run(() =>
+            {
+                if (File.Exists(searchPath))
+                {
+                    SearchIntoFile(pattern, searchPath);
+                }
+                else
+                {
+                    SearchIntoDirectory(pattern, searchPath);
+                }
+            });
+
+            MessageBox.Show("Поиск завершён");
+            isSearching = false;
+        }
+
+        private void SearchIntoDirectory(string pattern, string path)
+        {
+            Regex regex = new Regex(pattern);
+            try
+            {
+                Parallel.ForEach(Directory.GetDirectories(path).Where(file => !new DirectoryInfo(file).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System)), dirName =>
+                {
+                    if (regex.IsMatch(new DirectoryInfo(dirName).Name))
+                    {
+                        listBox1.BeginInvoke(new MethodInvoker(delegate
+                        {
+                            listBox1.Items.Add("[" + new DirectoryInfo(dirName).Name + "]");
+                        }));
+                    }
+                    SearchIntoDirectory(pattern, dirName);
+                });
+
+                Parallel.ForEach(Directory.GetFiles(path).Where(file => !new DirectoryInfo(file).Attributes.HasFlag(FileAttributes.Hidden | FileAttributes.System)), fileName =>
+                {
+                    if (regex.IsMatch(new FileInfo(fileName).Name))
+                    {
+                        listBox1.BeginInvoke(new MethodInvoker(delegate
+                        {
+                            listBox1.Items.Add(new FileInfo(fileName).Name);
+                        }));
+                    }
+                    else if (!IsFileLocked(new FileInfo(fileName)))
+                    {
+                        SearchIntoFile(pattern, fileName);
+                    }
+                });
+            }
+            catch { }
+        }
+
+        private static bool IsFileLocked(FileInfo file)
+        {
+            try
+            {
+                FileStream stream = file.Open(FileMode.Open, FileAccess.Read, FileShare.None);
+                stream.Dispose();
+            }
+            catch
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private void SearchIntoFile(string pattern, string path)
+        {
+            try
+            {
+                string fileData = File.ReadAllText(path);
+                if (new Regex(pattern).IsMatch(fileData))
+                {
+                    listBox1.BeginInvoke(new MethodInvoker(delegate
+                    {
+                        listBox1.Items.Add(new FileInfo(path).Name);
+                    }));
+
+                }
+            }
+            catch { }
+        }
+
+        bool isDonwloading = false;
+        private void downloadMenuItem_Click(object sender, EventArgs e)
+        {
+            isDonwloading = true;
+            textBox1.Focus();
+        }
+
+        CancellationTokenSource tokenSource;
+        private void Download()
+        {
+            if (tokenSource != null)
+                tokenSource.Cancel();
+            
+            string remoteFilename = textBox1.Text;
+            string localFileName = Path.Combine(currPath1, remoteFilename.Split('/').Last());
+
+            tokenSource = new CancellationTokenSource();
+            var token = tokenSource.Token;
+
+            DownloadFileAsync(remoteFilename, localFileName, token);
+            OpenDirectory(listBox1, string.Empty, currPath1);
+            OpenDirectory(listBox2, string.Empty, currPath2);
+        }
+
+        public async void DownloadFileAsync(string remoteFilename, string localFilename, CancellationToken token)
+        {
+            // Function will return the number of bytes processed
+            // to the caller. Initialize to 0 here.
+            bool isError = false;
+            await Task.Run(() =>
+            {
+                Stream remoteStream = null;
+                Stream localStream = null;
+                WebResponse response = null;
+
+                // Use a try/catch/finally block as both the WebRequest and Stream
+                // classes throw exceptions upon error
+                try
+                {
+                    // Create a request for the specified remote file name
+                    WebRequest request = WebRequest.Create(remoteFilename);
+                    if (request != null)
+                    {
+                        // Send the request to the server and retrieve the
+                        // WebResponse object 
+                        response = request.GetResponse();
+                        if (response != null)
+                        {
+                            // Once the WebResponse object has been retrieved,
+                            // get the stream object associated with the response's data
+                            remoteStream = response.GetResponseStream();
+
+                            // Create the local file
+                            localStream = File.Create(localFilename);
+
+                            // Allocate a 1k buffer
+                            byte[] buffer = new byte[1024];
+                            int bytesRead;
+
+                            // Simple do/while loop to read from stream until
+                            // no bytes are returned
+                            do
+                            {
+                                //cancel
+                                if (token.IsCancellationRequested)
+                                {
+                                    localStream.Close();
+                                    File.Delete(localFilename);
+                                    MessageBox.Show("Отмена");
+                                    break;
+                                }
+                                // Read data (up to 1k) from the stream
+                                bytesRead = remoteStream.Read(buffer, 0, buffer.Length);
+
+                                // Write the data to the local file
+                                localStream.Write(buffer, 0, bytesRead);
+                            } while (bytesRead > 0);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                    isError = true;
+                }
+                finally
+                {
+                    // Close the response and streams objects here
+                    // to make sure they're closed even if an exception
+                    // is thrown at some point
+                    if (response != null) response.Close();
+                    if (remoteStream != null) remoteStream.Close();
+                    if (localStream != null) localStream.Close();
+                }
+
+                // Return total bytes processed to caller.
+            }, token);
+
+            if (!token.IsCancellationRequested && !isError)
+                MessageBox.Show("Загрузка завершена");
         }
     }
 }
