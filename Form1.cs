@@ -15,12 +15,15 @@ using System.Net.Http;
 using System.Net;
 using System.Text.RegularExpressions;
 using System.Web;
+using System.Runtime.InteropServices;
 
 namespace FileManager
 {
     public partial class Form1 : Form
     {
         readonly User user;
+        ListViewColumnSorter lvwColumnSorter;
+        AutoCompleteStringCollection autoComplete;
 
         public Form1(User user)
         {
@@ -28,14 +31,46 @@ namespace FileManager
             InitializeComponent();
 
             InitEvents();
+
+            lvwColumnSorter = new ListViewColumnSorter();
+            listView1.ListViewItemSorter = lvwColumnSorter;
+
+            autoComplete = new AutoCompleteStringCollection();
+            textBox1.AutoCompleteMode = AutoCompleteMode.SuggestAppend;
+            textBox1.AutoCompleteSource = AutoCompleteSource.CustomSource;
+            textBox1.AutoCompleteCustomSource = autoComplete;
+
         }
 
         private void InitEvents()
         {
             Load += Form1_Load;
-            listBox1.DoubleClick += ListBox1_DoubleClick;
+            listView1.DoubleClick += ListBox1_DoubleClick;
 
             this.FormClosed += Form1_FormClosed;
+            listView1.ColumnClick += ListView1_ColumnClick;
+        }
+
+        private void ListView1_ColumnClick(object sender, ColumnClickEventArgs e)
+        {
+            if (e.Column == lvwColumnSorter.SortColumn)
+            {
+                if (lvwColumnSorter.Order == SortOrder.Ascending)
+                {
+                    lvwColumnSorter.Order = SortOrder.Descending;
+                }
+                else
+                {
+                    lvwColumnSorter.Order = SortOrder.Ascending;
+                }
+            }
+            else
+            {
+                lvwColumnSorter.SortColumn = e.Column;
+                lvwColumnSorter.Order = SortOrder.Descending;
+            }
+
+            listView1.Sort();
         }
 
         private void InitUserPrefs(UserPrefs userPrefs)
@@ -64,13 +99,13 @@ namespace FileManager
             numericUpDown1.Font = font;
             button1.Font = font;
 
-            listBox1.Font = font;
+            listView1.Font = font;
 
             textBox1.Font = font;
 
             textBox1.ForeColor = fontColor;
 
-            listBox1.ForeColor = fontColor;
+            listView1.ForeColor = fontColor;
 
             button1.ForeColor = fontColor;
         }
@@ -84,7 +119,7 @@ namespace FileManager
 
         private void SetListBoxColor(Color color)
         {
-            listBox1.BackColor = color;
+            listView1.BackColor = color;
 
             textBox1.BackColor = color;
 
@@ -116,7 +151,7 @@ namespace FileManager
 
         private void Form1_FormClosed(object sender, FormClosedEventArgs e)
         {
-            UserPrefs newUserPrefs = new UserPrefs(listBox1.Font, listBox1.ForeColor, listBox1.BackColor, this.BackgroundImage);
+            UserPrefs newUserPrefs = new UserPrefs(listView1.Font, listView1.ForeColor, listView1.BackColor, this.BackgroundImage);
             user.UserData = newUserPrefs;
 
             AuthForm.SerializeData(user);
@@ -126,9 +161,19 @@ namespace FileManager
 
         private void ListBox1_DoubleClick(object sender, EventArgs e)
         {
-            if (listBox1.FocusedItem != null)
+            if (listView1.FocusedItem != null)
             {
+                string bookRef = listView1.FocusedItem.Tag.ToString();
+                try
+                {
+                    Process.Start(bookRef);
+                }
+                catch
+                {
 
+                    bookRef = url.Replace("&", "^&");
+                    Process.Start(new ProcessStartInfo(bookRef) { UseShellExecute = true });
+                }
             }
         }
 
@@ -138,12 +183,15 @@ namespace FileManager
             InitUserPrefs(user.UserData);
         }
 
+        decimal countBooks;
         private async void button1_Click(object sender, EventArgs e)
         {
-            listBox1.Items.Clear();
+            autoComplete.Add(textBox1.Text);
+
+            listView1.Items.Clear();
             string langName = textBox1.Text;
 
-            decimal countBooks = numericUpDown1.Value;
+            countBooks = numericUpDown1.Value;
 
             int countPages = (int)Math.Ceiling(countBooks / 16);
 
@@ -153,7 +201,7 @@ namespace FileManager
 
                 if (htmlString != null)
                 {
-                    Parse(htmlString, (int)countBooks);
+                    Parse(htmlString);
                 }
             }
 
@@ -183,7 +231,7 @@ namespace FileManager
             return source;
         }
 
-        private void Parse(string htmlPage, int countBooks)
+        private void Parse(string htmlPage)
         {
             Regex rgxItem = new Regex("<div class=\"a-section a-spacing-small a-spacing-top-small\">(.*?)<div class=\"sg-col sg-col-4-of-12 sg-col-4-of-16 sg-col-8-of-20\">");
 
@@ -203,11 +251,10 @@ namespace FileManager
             foreach (Match match in rgxItem.Matches(htmlPage))
             {
                 string htmlItem = match.Groups[1].Value;
-                    
+
                 string title = HttpUtility.HtmlDecode(rgxTitle.Match(htmlItem).Groups[1].Value);
 
                 string authors = "";
-
                 foreach (Match authorWithRef in rgxAuthorWithRef.Matches(htmlItem))
                 {
                     authors += authorWithRef.Groups[1].Value + ", ";
@@ -220,7 +267,6 @@ namespace FileManager
                     {
                         authors += item + ", ";
                     }
-
                 }
 
                 authors = HttpUtility.HtmlDecode(authors.Trim().TrimEnd(new char[] { ' ', ',' }));
@@ -243,7 +289,10 @@ namespace FileManager
                 listViewItem.SubItems.Add(dateRelease);
                 listViewItem.SubItems.Add(price);
                 listViewItem.SubItems.Add(bookRef);
-                listBox1.Items.Add(listViewItem);
+
+                listViewItem.Tag = bookRef;
+
+                listView1.Items.Add(listViewItem);
 
                 countBooks--;
                 if (countBooks == 0)
