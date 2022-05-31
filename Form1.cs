@@ -188,7 +188,7 @@ namespace FileManager
             autoComplete.Add(textBox1.Text);
 
             listView1.Items.Clear();
-            string langName = textBox1.Text;
+            string langName = textBox1.Text.Replace("#", " sharp");
 
             countBooks = numericUpDown1.Value;
 
