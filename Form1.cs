@@ -170,7 +170,6 @@ namespace FileManager
                 }
                 catch
                 {
-
                     bookRef = url.Replace("&", "^&");
                     Process.Start(new ProcessStartInfo(bookRef) { UseShellExecute = true });
                 }
@@ -211,12 +210,12 @@ namespace FileManager
         string url = "https://www.amazon.com/s?k={CurrentLangName}&i=stripbooks-intl-ship&page={CurrentPage}";
         public async Task<string> GetHtmlByPageIdAsync(string langName, int id)
         {
-            var currentUrl = url.Replace("{CurrentLangName}", langName).Replace("{CurrentPage}", id.ToString());
+            string currentUrl = url.Replace("{CurrentLangName}", langName).Replace("{CurrentPage}", id.ToString());
 
-            var clientHandler = new HttpClientHandler()
+            HttpClientHandler clientHandler = new HttpClientHandler()
             { AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate };
 
-            var client = new HttpClient(clientHandler);
+            HttpClient client = new HttpClient(clientHandler);
 
             string source = null;
             client.DefaultRequestHeaders.Add("User-Agent", ".Net app");

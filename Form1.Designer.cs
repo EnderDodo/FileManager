@@ -170,7 +170,7 @@ namespace FileManager
             this.pictureMenuItem.Text = "Картинка";
             this.pictureMenuItem.Click += new System.EventHandler(this.pictureMenuItem_Click);
             // 
-            // listBox1
+            // listView1
             // 
             this.listView1.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.columnHeader1,
@@ -180,7 +180,7 @@ namespace FileManager
             this.columnHeader5});
             this.listView1.HideSelection = false;
             this.listView1.Location = new System.Drawing.Point(12, 96);
-            this.listView1.Name = "listBox1";
+            this.listView1.Name = "listView1";
             this.listView1.Size = new System.Drawing.Size(1455, 567);
             this.listView1.TabIndex = 7;
             this.listView1.UseCompatibleStateImageBehavior = false;
@@ -194,7 +194,7 @@ namespace FileManager
             // columnHeader2
             // 
             this.columnHeader2.Text = "Автор";
-            this.columnHeader2.Width = 200;
+            this.columnHeader2.Width = 353;
             // 
             // columnHeader3
             // 
