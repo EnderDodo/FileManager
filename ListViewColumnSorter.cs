@@ -38,7 +38,7 @@ namespace FileManager
 
             if (ColumnToSort == 4)
             {
-                if (!string.IsNullOrEmpty(listviewX.SubItems[ColumnToSort].Text) && !string.IsNullOrEmpty(listviewX.SubItems[ColumnToSort].Text))
+                if (!string.IsNullOrEmpty(listviewX.SubItems[ColumnToSort].Text) && !string.IsNullOrEmpty(listviewY.SubItems[ColumnToSort].Text))
                     {
                     float reviewX = float.Parse(listviewX.SubItems[ColumnToSort].Text.Replace("$", "").Replace(".", ","));
                     float reviewY = float.Parse(listviewY.SubItems[ColumnToSort].Text.Replace("$", "").Replace(".", ","));
