@@ -68,7 +68,7 @@ namespace FileManager
             }
             else
             {
-                MessageBox.Show("idi nahyu");
+                MessageBox.Show("Пароль неверный.");
             }
         }
     }
